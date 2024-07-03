@@ -1,13 +1,6 @@
 import subprocess
 import sys
-
-# Ensure pandas is installed
-try:
-    import pandas as pd
-except ImportError:
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pandas'])
-    import pandas as pd
-
+ import pandas as pd
 import boto3
 
 s3 = boto3.client('s3')
