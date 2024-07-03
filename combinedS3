@@ -1,0 +1,46 @@
+import subprocess
+import sys
+
+# Ensure pandas is installed
+try:
+    import pandas as pd
+except ImportError:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pandas'])
+    import pandas as pd
+
+import boto3
+
+s3 = boto3.client('s3')
+
+bucket1 = 'bucket1-unique'
+bucket2 = 'bucket2-unique'
+bucket3 = 'bucket3-unique'
+
+for bucket in [bucket1, bucket2, bucket3]:
+    s3.create_bucket(Bucket=bucket)
+
+names1 = pd.DataFrame({
+    'FirstName': ['Alice', 'Bob', 'Charlie']
+})
+
+names2 = pd.DataFrame({
+    'LastName': ['Smith', 'Jones', 'Brown']
+})
+
+names1.to_csv('names1.csv', index=False)
+names2.to_csv('names2.csv', index=False)
+
+s3.upload_file('names1.csv', bucket1, 'names1.csv')
+s3.upload_file('names2.csv', bucket2, 'names2.csv')
+
+s3.download_file(bucket1, 'names1.csv', 'names1.csv')
+s3.download_file(bucket2, 'names2.csv', 'names2.csv')
+
+names1 = pd.read_csv('names1.csv')
+names2 = pd.read_csv('names2.csv')
+
+combined = names1.join(names2)
+
+combined.to_csv('combined.csv', index=False)
+
+s3.upload_file('combined.csv', bucket3, 'combined.csv')
